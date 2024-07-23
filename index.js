@@ -1,28 +1,42 @@
-const http = require('http');
+const express = require('express');
+const app = express();
 const fs = require('node:fs');
 
-http.createServer(function(req, res) {
-    let htmlData;
-    console.log('req url', req.url, req.url === '/about')
+const PORT = 3000;
+app.listen(PORT, () => console.log(`My first Express app - listening on port ${PORT}!`));
 
-    // const reqUrl = new URL(req.url);
-    // const { pathname } = reqUrl;
+app.get("/", (req, res) => {
+    fs.readFile('./index.html', 'utf8', (err, data) => {
+        if (err) {
+            res.send('./404.html', 'utf8', (err, data) => {
+                res.send(data);
+            })
+            return;
+        }
+        res.send(data);
+    });
+})
 
-    // console.log('req url', req.url, 'path ', pathname);
-    let reqUrl = req.url;
-    if (req.url === '/') {
-        reqUrl = '/index';
-    }
-    fs.readFile(`.${reqUrl}.html`, 'utf8', (err, data) => {
+app.get("/about", (req, res) => {
+    fs.readFile('./about.html', 'utf8', (err, data) => {
+        if (err) {
+            fs.readFile('./404.html', 'utf8', (err, data) => {
+                res.send(data);
+            })
+            return;
+        }
+        res.send(data);
+    });
+})
+
+app.get("/contact-me", (req, res) => {
+    fs.readFile('./contact-me.html', 'utf8', (err, data) => {
         if (err) {
             fs.readFile('./404.html', 'utf8', (err, data) => {
                 res.end(data);
             })
             return;
         }
-        console.log('data', data);
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.end(data);
+        res.send(data);
     });
-
-}).listen(8080);
+})
